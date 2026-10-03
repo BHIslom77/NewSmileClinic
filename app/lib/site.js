@@ -18,19 +18,32 @@ export const photos = { roomOne, roomTwo, facade, chair, lounge };
 export { logo };
 
 /**
- * Координаты метки на карте.
- * ВАЖНО: проверьте точку: откройте клинику на openstreetmap.org, нажмите правой
- * кнопкой по зданию → «Показать адрес» и подставьте lat/lng сюда.
+ * Координаты метки на карте (используются и для кнопки «Построить маршрут»).
+ * ВАЖНО: проверьте точку в Google Maps — зажмите нужное место на карте,
+ * внизу появятся цифры вида 41.xxxxx, 69.xxxxx — подставьте их сюда.
  */
-export const CLINIC = { lat: 41.335028, lng: 69.371027, zoom: 17 };
+export const CLINIC = { lat: 41.33545, lng: 69.370895, zoom: 17 };
 
-// Адрес, который уходит в Google Maps как пункт назначения
+// Google Place ID точки (необязательно, но вместе с координатами даёт
+// самый точный маршрут — Google Maps не пытается сам угадывать адрес по тексту)
+export const CLINIC_PLACE_ID = "ChIJ67IN0jr0rjgR0uPQryae76k";
+
+// Адрес — только для показа на сайте (подпись на карте, карточка контактов)
 export const ROUTE_DESTINATION =
   "Карасу-1, дом 14, квартира 46, Ташкент, Узбекистан";
-export const routeUrl = () =>
-  `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-    ROUTE_DESTINATION
-  )}&travelmode=driving`;
+
+// Маршрут строим по координатам, а не по тексту адреса — так Google Maps
+// не промахивается на соседние дома/объекты с похожим адресом
+export const routeUrl = () => {
+  const dest = `${CLINIC.lat},${CLINIC.lng}`;
+  const params = new URLSearchParams({
+    api: "1",
+    destination: dest,
+    travelmode: "driving",
+  });
+  if (CLINIC_PLACE_ID) params.set("destination_place_id", CLINIC_PLACE_ID);
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
+};
 
 export const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 export const OFF_DAY = "fri";
@@ -53,7 +66,7 @@ export const DOCTORS = [
     photo: "/doc2.jpg",
     years: 14,
     hours: "10:00–18:00",
-    phone: { tel: "+998955709999 ", display: "+998 +998 95 570 99 99 " },
+    phone: { tel: "+998955709999 ", display: "+998 95 570 99 99 " },
   },
   {
     id: "jasur",
